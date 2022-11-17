@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+
+const path = require('path');
+const os = require("os");
+
+const inquirer = require('inquirer');
+const globby = require('globby');
+const which = require('which');
+
+const generateHomework = require('../index');
+
+const cwd = process.cwd();
+const homedir = os.homedir();
+
+// step 0, 检查 pandoc
+const whichPandoc = which.sync('pandoc', { nothrow: true });
+const isExistPandoc = whichPandoc !== null
+
+if (!isExistPandoc) {
+  console.error('请预先安装 pandoc 至全局，安装可查看 => https://pandoc.org/installing.html');
+  process.exit(-1);
+}
+
+// Todo 可以指定 cwd
+// step 1 在当前 cwd 下获取所有文档信息，这是所有做过的作业
+const homeworksList = globby.sync(['*.md']);
+
+// step 2 设置默认的作业输出目录
+const outputHomeworksDir = path.join(homedir, 'Homeworks');
+
+inquirer
+  .prompt([
+    {
+      type: 'rawlist',
+      name: 'homework',
+      message: '今天你想交哪篇作业给老师呢?',
+      choices: homeworksList,
+      filter(val) {
+        return path.resolve(cwd, val);
+      }
+    },
+    {
+      type: 'input',
+      name: 'output',
+      message: '请选择输出路径，默认输出路径在用户目录的 Homeworks 下',
+      default: outputHomeworksDir,
+      filter(val) {
+        return path.resolve(val);
+      },
+    },
+  ])
+  .then((answers) => {
+    const config = {
+      pandoc: whichPandoc,
+      ...answers,
+    }
+    console.info(JSON.stringify(config, null, '  '));
+    generateHomework(config);
+  });

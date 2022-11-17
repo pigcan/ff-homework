@@ -1,0 +1,21 @@
+{
+  "name": "ff-homework",
+  "version": "0.1.0",
+  "description": "给老师交作业的工具",
+  "main": "index.js",
+  "bin": {
+    "hw": "./bin/hw"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "pigcan",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^10.1.0",
+    "globby": "^11.0.0",
+    "inquirer": "^8.0.0",
+    "sync-exec": "^0.6.2",
+    "which": "^3.0.0"
+  }
+}
