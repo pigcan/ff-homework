@@ -6,11 +6,21 @@ const os = require("os");
 const inquirer = require('inquirer');
 const globby = require('globby');
 const which = require('which');
+const { program } = require('commander');
+const chalk = require('chalk');
 
 const generateHomework = require('../index');
 
 const cwd = process.cwd();
 const homedir = os.homedir();
+
+program
+  .version(require('../package').version, '-v, --version')
+  .option('--verbose', 'run with more logging messages.')
+  .parse(process.argv);
+
+program.parse();
+const options = program.opts();
 
 // step 0, 检查 pandoc
 const whichPandoc = which.sync('pandoc', { nothrow: true });
@@ -27,6 +37,7 @@ const homeworksList = globby.sync(['*.md']);
 
 // step 2 设置默认的作业输出目录
 const outputHomeworksDir = path.join(homedir, 'Homeworks');
+
 
 inquirer
   .prompt([
@@ -53,7 +64,10 @@ inquirer
     const config = {
       pandoc: whichPandoc,
       ...answers,
+      verbose: !!options.verbose,
     }
-    console.info(JSON.stringify(config, null, '  '));
+    if (config.verbose) {
+      console.info(chalk.green('命令行最终参数', JSON.stringify(config, null, '  ')));
+    }
     generateHomework(config);
   });

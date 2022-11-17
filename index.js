@@ -4,6 +4,7 @@ const fs = require('fs');
 
 const fse = require('fs-extra');
 const exec = require('sync-exec');
+const chalk = require('chalk');
 
 const AUDIOREG = /^!\[\[(Recording\s\d{14}\.webm)\]\]$/igm;
 const IMAGEREG = /^!\[\[(.*\.(gif|jpe?g|tiff?|png|webp|bmp))\]\]$/igm;
@@ -16,6 +17,7 @@ function generateHomework(config) {
   // 从用户选择的作业中分析 audio 标签和图片信息，获取文件中的音频和图片地址信息
   //    生成新的 md 文件，并将其输出到临时目录 - 临时目录以作业名加时间戳决定
   //    拷贝相关的音频和图片文件至临时目录
+  const verbose = config.verbose;
   const pandoc = config.pandoc;
   const homework = config.homework;
   const output = config.output;
@@ -51,11 +53,16 @@ function generateHomework(config) {
 
   const tmpHomeworkPath = path.join(outputTmpDir, `${filename}.md`);
   fse.outputFileSync(tmpHomeworkPath, homeworkContent);
-  fse.copySync(cwd, outputTmpDir, {
-    filter: (src, dest) => {
-      return src.indexOf(audioPathList) > -1 || src.indexOf(imagePathList) > -1;
-    }
+  audioPathList.concat(imagePathList).forEach((item) => {
+    const basename = path.basename(item);
+    fse.copySync(item, path.join(outputTmpDir, basename));
   });
+
+  if (verbose) {
+    console.info(chalk.grey('outputTmpDir =>', outputTmpDir));
+    console.info(chalk.grey('audioPathList =>', audioPathList));
+    console.info(chalk.grey('imagePathList =>', imagePathList));
+  }
 
   //  step 2
   //  调用 Pandoc 生成 html，并输出至指定目录
@@ -64,11 +71,13 @@ function generateHomework(config) {
   const cmd = `${pandoc} -f markdown --resource-path="${outputTmpDir}" --lua-filter="${filterPath}" --embed-resources --standalone --metadata title="${filename}" -s -o "${finalHomeworkPath}" -t html --mathjax="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js" "${tmpHomeworkPath}"`;
   const result = exec(cmd);
   if (result.stderr) {
-    console.error(`Failed: ${cmd}`);
-    console.error(result.stderr);
+    console.error(chalk.red(`Failed: ${cmd}`));
+    if (verbose) {
+      console.error(chalk.red(result.stderr));
+    }
     process.exit(-1);
   }
-  console.info(`成功生成作业, 路径在 ${finalHomeworkPath}`);
+  console.info(chalk.green(`成功生成作业, 路径在 ${finalHomeworkPath}`));
   process.exit(0);
 }
 
