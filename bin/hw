@@ -33,7 +33,7 @@ if (!isExistPandoc) {
 
 // Todo 可以指定 cwd
 // step 1 在当前 cwd 下获取所有文档信息，这是所有做过的作业
-const homeworksList = globby.sync(['*.md']);
+const homeworksList = globby.sync(['**/*.md']);
 
 // step 2 设置默认的作业输出目录
 const outputHomeworksDir = path.join(homedir, 'Homeworks');
