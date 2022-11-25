@@ -1,6 +1,6 @@
 {
   "name": "ff-homework",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "给老师交作业的工具",
   "bin": {
     "hw": "./bin/hw"
