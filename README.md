@@ -38,3 +38,11 @@ $ npm install -g ff-homework
 $ cd  /Users/pigcan/Documents/Obsidian\ Vault/
 $ hw
 ```
+
+## hw 功能
+
+```bash
+$ hw // 用于生成作业 即 md 转为 html
+$ hw --verbose // 运行时会在命令行暴露更多的运行日志
+$ hw --clean 0 // 清理未被引用的资源文件 0 代表 case-sensitive 1 代表 case-insensitive, 默认为 1
+```
