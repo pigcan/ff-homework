@@ -1,26 +1,62 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const os = require("os");
+const os = require('os');
 
 const inquirer = require('inquirer');
 const globby = require('globby');
 const which = require('which');
 const { program } = require('commander');
 const chalk = require('chalk');
+const ora = require('ora');
 
-const generateHomework = require('../index');
+const generateHomework = require('../lib/generate');
+const clean = require('../lib/clean');
 
 const cwd = process.cwd();
 const homedir = os.homedir();
 
 program
   .version(require('../package').version, '-v, --version')
+  .option('--clean [type]', 'clean unused attachments in the obsidian vault, case-sensitive: 0, case-insensitive: 1')
+  .option('--nocase', '')
   .option('--verbose', 'run with more logging messages.')
   .parse(process.argv);
 
 program.parse();
 const options = program.opts();
+
+if (options.clean === true || (options.clean !== true && options.clean !== undefined && options.clean !== '0')) {
+  options.clean = '1';
+}
+
+
+if (options.clean) {
+  inquirer
+    .prompt([
+      {
+        type: 'confirm',
+        name: 'clean',
+        message: 'Do you confirm to clean unused attachments in the obsidian vault?\n  Warning this command will clean all of unused attachments!',
+        default: false,
+      }
+    ])
+    .then((answers) => {
+      if (answers.clean) {
+        const spinner = ora('Start to clean unused attachments in the Obsidian Vault').start();
+        clean(cwd, options.verbose, options.clean).then(() => {
+          spinner.stop();
+          console.log(chalk.green('All unused attachments are cleaned!'));
+          process.exit(0);
+        }).catch((err) => {
+          console.error(chalk.red(err.message));
+          spinner.stop();
+          process.exit(-1);
+        });
+      }
+    });
+  return;
+}
 
 // step 0, 检查 pandoc
 const whichPandoc = which.sync('pandoc', { nothrow: true });

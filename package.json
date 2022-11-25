@@ -2,7 +2,6 @@
   "name": "ff-homework",
   "version": "0.2.0",
   "description": "给老师交作业的工具",
-  "main": "index.js",
   "bin": {
     "hw": "./bin/hw"
   },
@@ -17,7 +16,12 @@
     "fs-extra": "^10.1.0",
     "globby": "^11.0.0",
     "inquirer": "^8.0.0",
+    "lodash.difference": "^4.5.0",
+    "lodash.flattendeep": "^4.4.0",
+    "lodash.uniq": "^4.5.0",
+    "ora": "^5.4.1",
     "sync-exec": "^0.6.2",
+    "trash": "^7.2.0",
     "which": "^3.0.0"
   }
 }
