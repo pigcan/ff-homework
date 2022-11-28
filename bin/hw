@@ -60,7 +60,7 @@ if (options.clean) {
 
 // step 0, 检查 pandoc
 const whichPandoc = which.sync('pandoc', { nothrow: true });
-const isExistPandoc = whichPandoc !== null
+const isExistPandoc = whichPandoc !== null;
 
 if (!isExistPandoc) {
   console.error('请预先安装 pandoc 至全局，安装可查看 => https://pandoc.org/installing.html');
